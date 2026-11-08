@@ -31,8 +31,8 @@ label{font-size:12px;font-weight:700;color:var(--mut);text-transform:uppercase;l
 .code{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .code b{font:800 20px ui-monospace,Menlo,monospace;letter-spacing:.06em;color:var(--pk)}
 .sm{padding:8px 12px;font-size:12px;width:auto;margin:0;border-radius:10px}
-.cats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
-.cat{border:1px solid var(--line);background:var(--bg);color:var(--tx);border-radius:14px;padding:10px 4px;font:600 12px inherit;font-family:inherit;cursor:pointer}
+.cats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.cat{border:1px solid var(--line);background:var(--bg);color:var(--tx);border-radius:14px;padding:10px 4px;font:600 10px inherit;font-family:inherit;cursor:pointer}
 .cat span{display:block;font-size:22px}.cat.sel{border-color:var(--pk);background:rgba(255,42,109,.15)}
 .tag{display:inline-block;font-size:11px;font-weight:800;text-transform:uppercase;padding:3px 10px;border-radius:99px;background:rgba(157,0,255,.18);color:var(--pu);margin-bottom:8px}
 .big{font:italic 600 19px/1.5 Georgia,serif;text-align:center;margin:10px 0}
@@ -41,9 +41,17 @@ label{font-size:12px;font-weight:700;color:var(--mut);text-transform:uppercase;l
 .hint{text-align:center;color:var(--mut);font-size:13px}
 .st{text-align:center;font-weight:700;padding:10px;border-radius:12px;background:var(--bg);border:1px dashed var(--line)}
 .score{display:flex;justify-content:space-between;color:var(--mut);font-size:12px}
-.hide{display:none!important}
+.frow{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}.frow .fn{flex:1;min-width:0}.frow small{display:block;color:var(--mut);font-size:11px}.frow .btn{margin:0;flex:none}.fd{width:10px;height:10px;border-radius:50%;background:#ef4444;flex:none}.fd.on{background:var(--ok);box-shadow:0 0 8px var(--ok)}.hide{display:none!important}
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--card);border:1px solid var(--pk);color:var(--tx);padding:10px 16px;border-radius:14px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;max-width:90%;text-align:center;z-index:9}
 #toast.show{opacity:1}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{border:1px solid var(--line);background:var(--bg);color:var(--tx);border-radius:99px;padding:7px 12px;font:600 12px inherit;font-family:inherit;cursor:pointer}
+.chip.sel{border-color:var(--pk);background:rgba(255,42,109,.15)}
+.timer{font:800 32px ui-monospace,Menlo,monospace;text-align:center;color:var(--pk);margin:8px 0}
+.btn.bad{background:#ef4444}
+.rank{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--bg);margin-top:8px}
+.rank .pts{margin-left:auto;font-size:20px;font-weight:800}.rank small{display:block;color:var(--mut);font-size:11px}
+.rank .pos{font-size:20px;width:28px;text-align:center}
 </style>
 </head>
 <body>
@@ -61,8 +69,15 @@ label{font-size:12px;font-weight:700;color:var(--mut);text-transform:uppercase;l
       <div class="hint" style="margin:12px 0 4px">— o entra con el código de tu pareja —</div>
       <div class="row"><input id="code" placeholder="LOVE-1234" autocapitalize="characters" autocomplete="off" style="text-transform:uppercase;text-align:center;font-weight:700;margin:0"><button class="btn sec" id="bJoin" style="margin:0">Unirme</button></div>
     </div>
+    <div class="card" id="friends">
+      <label>👥 Mis amistades</label>
+      <div class="code" style="margin-top:6px"><div><span class="hint">Tu código de amistad</span><br><b id="mycode">—</b></div><button class="btn sec sm" id="bCopyMe">Copiar</button></div>
+      <div id="reqs"></div><div id="flist"></div>
+      <div class="row" style="margin-top:10px"><input id="fcode" placeholder="Código de tu amistad (U-1234)" autocapitalize="characters" autocomplete="off" style="margin:0;text-transform:uppercase"><button class="btn sec sm" id="bAdd" style="flex:none;padding:0 16px">Agregar</button></div>
+      <p class="hint" style="margin:8px 0 0">Agrega a tu pareja una vez y entrarán a su sala con un toque, sin copiar códigos.</p>
+    </div>
     <div class="card"><label>Cómo funciona</label>
-      <ol class="steps"><li>Uno crea la sala y le pasa el código al otro.</li><li>Eliges una categoría y el reto se escoge solo, <b>sin que tú lo veas</b>.</li><li>A tu pareja le llega una caja de regalo: la abre, lo cumple y suman puntos.</li><li>La sala se queda guardada aunque cierres la página.</li></ol>
+      <ol class="steps"><li>Uno crea la sala y le pasa el código al otro.</li><li>Eliges una categoría y el reto se escoge solo, <b>sin que tú lo veas</b>.</li><li>A tu pareja le llega una caja de regalo: la abre y decide si <b>acepta</b> o se <b>rinde</b>. Si acepta, corre el tiempo que tú pusiste.</li><li>Tú decides si de verdad cumplió: <b>+100 pts</b> si cumple; <b>−50</b> si se rinde, se acaba el tiempo o no cumple.</li><li>La sala se queda guardada aunque cierres la página.</li></ol>
     </div>
   </div>
 
@@ -70,15 +85,17 @@ label{font-size:12px;font-weight:700;color:var(--mut);text-transform:uppercase;l
   <div id="game" class="hide">
     <div class="card">
       <div class="code"><div><label>Código de sala</label><br><b id="rcode">—</b></div><button class="btn sec sm" id="bShare">Compartir</button></div>
-      <div class="score" style="margin-top:8px"><span id="who"></span><span>🏆 <b id="score">0</b> pts</span></div>
+      <div class="score" style="margin-top:8px"><span id="who"></span></div>
     </div>
 
+    <div class="card" id="rank"></div>
     <div class="card" id="inbox"></div>
 
     <div class="card">
       <label>Enviar reto sorpresa a tu pareja</label>
       <div class="cats" id="cats"></div>
       <div id="customBox" class="hide"><textarea id="custom" rows="2" placeholder="Escribe tu propio reto (este sí lo verás)"></textarea></div>
+      <label style="display:block;margin-top:14px">Tiempo para cumplirlo (corre al aceptar)</label><div class="chips" id="times"></div>
       <button class="btn" id="bSend">🎁 Enviar reto</button>
       <div id="mine" class="st hide" style="margin-top:10px"></div>
     </div>
@@ -166,15 +183,39 @@ const CH=[
 ["creative","Muéstrale por foto tu rincón favorito de tu casa y cuéntale por qué."],
 ["creative","Elijan una palabra secreta solo de ustedes y úsenla hoy."],
 ["creative","Hagan una lista de 5 metas que quieren cumplir juntos este año."],
-["creative","Cuenta una historia de 4 frases: tú empiezas y tu pareja la continúa."]
+["creative","Cuenta una historia de 4 frases: tú empiezas y tu pareja la continúa."],
+["together","Dile tres cosas que harán el primer día que se vean y pon una fecha tentativa."],
+["together","Elige el lugar donde irán a comer en su próxima cita y dile por qué."],
+["together","Prométele algo concreto que le harás en cuanto se vean."],
+["together","Escribe la lista de lo que harán en su primera hora juntos."],
+["together","Dile qué ropa te gustaría que usaran ambos en su próximo reencuentro."],
+["together","Planea una mini aventura para su próximo fin de semana juntos: lugar, plan y presupuesto."],
+["together","Cuéntale cómo imaginas el momento exacto en que se abracen en persona."],
+["together","Elijan una película o serie para ver abrazados cuando se vean."],
+["together","Dile qué regalo pequeño le llevarías la próxima vez y por qué ese."],
+["together","Elige una canción para bailar juntos en el reencuentro y mándasela."],
+["together","Dile qué comida cocinarán juntos y quién será el chef."],
+["together","Pon una cuenta regresiva: cuántos días faltan para verse y qué harás ese día."],
+["silly","Envía una foto con la cara más fea que puedas hacer, sin explicación."],
+["silly","Habla con voz de bebé en una nota de voz durante 15 segundos."],
+["silly","Hazte un bigote con lo que tengas y mándale la foto."],
+["silly","Inventa una canción tonta sobre tu pareja y cántala ya mismo."],
+["silly","Manda una foto intentando lamerte el codo."],
+["silly","Imita a un pollo enojado en un video de 5 segundos."],
+["silly","Ponte un calcetín en la mano y haz que le hable a tu pareja en videollamada."],
+["silly","Di el abecedario al revés lo más rápido que puedas, en nota de voz."],
+["silly","Haz tu mejor cara de “acabo de oler algo horrible” y mándala."],
+["silly","Escribe un mensaje solo con palabras inventadas para que tu pareja lo traduzca."],
+["silly","Cuéntale un chiste sin gracia con toda tu seriedad, en audio."],
+["silly","Dile un piropo ridículo como si fueras un caballero medieval."]
 ];
-const CATS={surprise:["🎁","Sorpresa total"],hot:["🔥","Picante"],romantic:["💖","Romántico"],funny:["😂","Divertido"],creative:["✨","Creativo"],custom:["✍️","Escribir uno"]};
-const REAL=["hot","romantic","funny","creative"];
+const CATS={surprise:["🎁","Sorpresa total"],hot:["🔥","Picante"],romantic:["💖","Romántico"],funny:["😂","Divertido"],creative:["✨","Creativo"],together:["🏠","Próxima vez juntos"],silly:["🤪","Tonto"],custom:["✍️","Escribir uno"]};
+const REAL=["hot","romantic","funny","creative","together","silly"];
 const $=i=>document.getElementById(i);
-let db=null,S={room:null,pid:null,name:"",players:{},sent:{},rd:null,cat:"surprise"},unsubs=[],hb=null;
+let db=null,S={room:null,pid:null,name:"",players:{},sent:{},log:[],mins:15,rd:null,cat:"surprise"},unsubs=[],hb=null;
 
 function store(){try{return JSON.parse(localStorage.getItem("retos.v1"))||{}}catch(e){return {}}}
-function persist(){try{localStorage.setItem("retos.v1",JSON.stringify({room:S.room,pid:S.pid,name:S.name}))}catch(e){}}
+function persist(){try{localStorage.setItem("retos.v1",JSON.stringify({room:S.room,pid:S.pid,name:S.name,me:S.me,friends:S.friends}))}catch(e){}}
 function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),2800)}
 function setPill(cls,tx){$("pill").className="pill "+cls;$("pilltx").textContent=tx}
 function other(){return Object.keys(S.players).find(k=>k!==S.pid)}
@@ -202,20 +243,21 @@ async function makeDb(){
   };
 }
 async function init(){
-  const st=store();S.pid=st.pid||("p"+Math.random().toString(36).slice(2,10));S.name=st.name||"";
+  const st=store();S.pid=st.pid||("p"+Math.random().toString(36).slice(2,10));S.name=st.name||"";S.me=st.me||null;S.friends=st.friends||[];
   $("name").value=S.name;persist();
-  buildCats();
+  buildCats();buildTimes();
   try{
     db=await makeDb();
   }catch(e){db=null}
   if(!db){setPill("off","Falta configurar Firebase");$("lobby").classList.remove("hide");
     toast("Falta pegar tu configuración de Firebase en el código.");return}
+  await ensureMe();pollFriends();setInterval(()=>{pbeat();pollFriends()},10000);
   if(st.room){const ok=await enter(st.room,true);if(ok)return}
   S.room=null;persist();showLobby();
 }
 function showLobby(){setPill("wait","Sin sala");$("lobby").classList.remove("hide");$("game").classList.add("hide")}
 
-function myName(){const n=$("name").value.trim();if(!n){toast("Escribe tu nombre primero");return null}S.name=n;persist();return n}
+function myName(){const n=$("name").value.trim();if(!n){toast("Escribe tu nombre primero");return null}S.name=n;persist();pbeat();return n}
 
 $("bCreate").onclick=async()=>{
   if(!myName())return;
@@ -243,8 +285,9 @@ async function enter(code,silent){
     unsubs.push(db.doc("rooms/"+code).onSnapshot(s=>{S.rd=s.exists?s.data():null;render()}));
     unsubs.push(db.collection("rooms/"+code+"/players").onSnapshot(q=>{S.players={};q.docs.forEach(d=>S.players[d.id]=d.data());render()}));
     unsubs.push(db.collection("rooms/"+code+"/sent").onSnapshot(q=>{S.sent={};q.docs.forEach(d=>S.sent[d.id]=d.data());render()}));
-    clearInterval(hb);hb=setInterval(()=>{beat();render()},8000);
-    $("lobby").classList.add("hide");$("game").classList.remove("hide");$("rcode").textContent=code;
+    unsubs.push(db.collection("rooms/"+code+"/log").onSnapshot(q=>{S.log=q.docs.map(d=>d.data());render()}));
+    clearInterval(hb);hb=setInterval(()=>{beat();pill()},8000);
+    $("lobby").classList.add("hide");$("game").classList.remove("hide");$("rcode").textContent=roomLabel(code);$("bShare").classList.toggle("hide",code.startsWith("F_"));
     render();return true;
   }catch(e){return false}
 }
@@ -255,7 +298,7 @@ $("bLeave").onclick=async()=>{
   if(!confirm("¿Salir de la sala? Tendrás que volver a entrar con el código."))return;
   const room=S.room;unsubs.forEach(u=>u());unsubs=[];clearInterval(hb);
   try{await db.doc("rooms/"+room+"/players/"+S.pid).delete()}catch(e){}
-  S.room=null;S.players={};S.sent={};persist();showLobby();toast("Saliste de la sala");
+  S.room=null;S.players={};S.sent={};S.log=[];persist();showLobby();toast("Saliste de la sala");
 };
 $("bShare").onclick=async()=>{
   const t="Entra a nuestra sala de retos con el código: "+S.room;
@@ -275,7 +318,7 @@ function buildCats(){
 
 $("bSend").onclick=async()=>{
   const mine=S.sent[S.pid];
-  if(mine&&!mine.done){toast("Tu pareja aún no termina el reto anterior");return}
+  if(mine&&mine.st!=="done"){toast("El reto anterior aún no termina");return}
   if(!other()){toast("Espera a que tu pareja se conecte");return}
   let data;const used=(S.rd&&S.rd.used)||[];let newUsed=used.slice();
   if(S.cat==="custom"){
@@ -288,7 +331,7 @@ $("bSend").onclick=async()=>{
     const p=pool[Math.floor(Math.random()*pool.length)];
     data={cat:c,id:p.i,chosen:S.cat};newUsed.push(p.i);
   }
-  data.opened=false;data.done=false;data.skipped=false;data.at=Date.now();data.from=S.name;
+  data.st="sent";data.mins=S.mins;data.at=Date.now();data.from=S.name;data.pid=S.pid;
   try{
     await db.doc("rooms/"+S.room+"/sent/"+S.pid).set(data);
     if(data.cat!=="custom")await db.doc("rooms/"+S.room).update({used:newUsed});
@@ -296,43 +339,159 @@ $("bSend").onclick=async()=>{
   }catch(e){toast("No se pudo enviar, intenta otra vez")}
 };
 
-async function openGift(){try{await db.doc("rooms/"+S.room+"/sent/"+other()).update({opened:true})}catch(e){toast("Error al abrir")}}
-async function finish(skip){
-  try{
-    await db.doc("rooms/"+S.room+"/sent/"+other()).update(skip?{done:true,skipped:true}:{done:true});
-    if(!skip){await db.doc("rooms/"+S.room).update({score:((S.rd&&S.rd.score)||0)+100});toast("¡Reto cumplido! +100 pts 🎉")}
-  }catch(e){toast("Error al guardar")}
+const TIMES=[[5,"5 min"],[15,"15 min"],[60,"1 hora"],[360,"6 horas"],[1440,"24 horas"],[0,"Sin límite"]];
+function buildTimes(){const b=$("times");b.innerHTML="";TIMES.forEach(([m,l])=>{const c=document.createElement("button");c.className="chip"+(m===S.mins?" sel":"");c.textContent=l;c.onclick=()=>{S.mins=m;buildTimes()};b.appendChild(c)})}
+function lbl(m){return m?(m>=60?m/60+" h":m+" min"):"sin límite"}
+function fmt(ms){ms=Math.max(0,ms);const t=Math.ceil(ms/1000),h=Math.floor(t/3600),m=Math.floor(t%3600/60),x=t%60,p=n=>String(n).padStart(2,"0");return (h?h+":":"")+p(m)+":"+p(x)}
+function el(p,tag,cls,tx,click){const e=document.createElement(tag);if(cls)e.className=cls;if(tx!=null)e.textContent=tx;if(click)e.onclick=click;p.appendChild(e);return e}
+function txt(t){return t.cat==="custom"?t.text:(CH[t.id]?CH[t.id][1]:"")}
+
+const upd=async(pid,d)=>{try{await db.doc("rooms/"+S.room+"/sent/"+pid).update(d)}catch(e){toast("Error, intenta otra vez")}};
+async function finish(t,res){
+  const pts=res==="win"?100:-50,recv=t.pid===S.pid?other():S.pid;
+  await upd(t.pid,{st:"done",res});
+  try{await db.doc("rooms/"+S.room+"/log/"+t.pid+"_"+t.at).set({to:recv,pts,res,cat:t.cat,at:Date.now()})}catch(e){}
+  toast(res==="win"?"¡Reto cumplido! +100 pts 🎉":"Reto fallido: −50 pts");
+}
+const giveUp=t=>{if(confirm("¿Rendirte? Perderás 50 puntos."))finish(t,"quit")};
+
+setInterval(()=>{
+  if(!S.room)return;
+  document.querySelectorAll("[data-dl]").forEach(e=>{e.textContent=fmt(+e.dataset.dl-Date.now())});
+  [S.sent[S.pid],S.sent[other()]].forEach(t=>{if(t&&t.pid&&t.st==="accepted"&&t.deadline&&Date.now()>t.deadline&&!t._x){t._x=1;finish(t,"time")}});
+},1000);
+
+function pill(){
+  const o=other(),p=o&&S.players[o];
+  if(!p){setPill("wait","Esperando a tu pareja… comparte el código");return}
+  const age=Date.now()-(p.seen||0);
+  if(age<25000)setPill("on",(p.name||"Tu pareja")+" está conectado/a");
+  else setPill("off",(p.name||"Tu pareja")+" desconectado/a"+(age<3.6e6?" · hace "+Math.max(1,Math.round(age/60000))+" min":""));
+}
+
+function renderRank(){
+  const box=$("rank");box.innerHTML="";el(box,"label",null,"🏆 Top de puntos");
+  const o=other(),ids=o?[S.pid,o]:[S.pid];
+  const rows=ids.map(id=>{const L=S.log.filter(x=>x.to===id);
+    return{name:id===S.pid?(S.name||"Tú")+" (tú)":((S.players[id]&&S.players[id].name)||"Tu pareja"),pts:L.reduce((a,x)=>a+x.pts,0),w:L.filter(x=>x.res==="win").length,f:L.filter(x=>x.res!=="win").length}}).sort((a,b)=>b.pts-a.pts);
+  rows.forEach((r,i)=>{const d=el(box,"div","rank");
+    el(d,"span","pos",rows.length>1&&i===0&&r.pts>rows[1].pts?"👑":(i+1)+"º");
+    const w=el(d,"div");el(w,"b",null,r.name);el(w,"small",null,r.w+" cumplidos · "+r.f+" fallidos");
+    el(d,"span","pts",(r.pts>0?"+":"")+r.pts);});
+}
+
+function renderInbox(){
+  const inb=$("inbox"),o=other(),t=o&&S.sent[o];inb.innerHTML="";
+  el(inb,"label",null,"Tu reto sorpresa");
+  if(!t){el(inb,"p","hint","Aún no te han enviado nada. Cuando tu pareja te mande un reto, aparecerá aquí.");return}
+  const st=t.st||"sent";
+  if(st==="sent"){el(inb,"div","gift","🎁",()=>upd(o,{st:"opened"}));el(inb,"p","hint","¡"+(t.from||"Tu pareja")+" te envió un reto! Toca la caja para abrirlo.");return}
+  const C=CATS[t.cat];el(inb,"span","tag",C?C[0]+" "+C[1]:"Reto");
+  el(inb,"p","big","“"+txt(t)+"”");
+  if(st==="opened"){
+    el(inb,"p","hint","Tiempo para cumplirlo: "+lbl(t.mins)+" (empieza al aceptar)");
+    el(inb,"button","btn","💪 Aceptar el reto",()=>upd(o,{st:"accepted",deadline:t.mins?Date.now()+t.mins*60000:0}));
+    el(inb,"button","btn bad","🏳️ Rendirme (−50 pts)",()=>giveUp(t));
+  }else if(st==="accepted"){
+    if(t.deadline){const c=el(inb,"div","timer",fmt(t.deadline-Date.now()));c.dataset.dl=t.deadline}
+    else el(inb,"p","hint","Sin límite de tiempo");
+    el(inb,"button","btn ok","✅ Ya lo hice",()=>upd(o,{st:"review"}));
+    el(inb,"button","btn bad","🏳️ Rendirme (−50 pts)",()=>giveUp(t));
+  }else if(st==="review"){
+    el(inb,"div","st","Esperando a que "+(t.from||"tu pareja")+" confirme si cumpliste…");
+  }else{
+    const M={win:"✅ ¡Cumpliste! +100 pts",fail:"❌ Tu pareja dijo que no cumpliste · −50 pts",quit:"🏳️ Te rindes · −50 pts",time:"⏰ Se acabó el tiempo · −50 pts"};
+    el(inb,"div","st",M[t.res]||"Reto terminado");
+  }
+}
+
+function renderMine(){
+  const m=S.sent[S.pid],ms=$("mine");
+  $("bSend").disabled=!!(m&&m.st!=="done");
+  if(!m){ms.classList.add("hide");return}
+  ms.classList.remove("hide");ms.innerHTML="";
+  const st=m.st||"sent";
+  if(st==="sent")el(ms,"div",null,"Reto enviado 🎁 Aún sin abrir");
+  else if(st==="opened")el(ms,"div",null,"Tu pareja abrió el reto y decide si lo acepta…");
+  else if(st==="accepted"){
+    el(ms,"div",null,"💪 Tu pareja aceptó el reto");
+    if(m.deadline){const c=el(ms,"div","timer",fmt(m.deadline-Date.now()));c.dataset.dl=m.deadline}
+  }else if(st==="review"){
+    el(ms,"div",null,"Tu pareja dice que ya lo hizo. El reto era:");
+    el(ms,"p","big","“"+txt(m)+"”");
+    el(ms,"button","btn ok","✅ Sí cumplió (+100 pts para ella/él)",()=>finish(m,"win"));
+    el(ms,"button","btn bad","❌ No cumplió (−50 pts)",()=>finish(m,"fail"));
+  }else{
+    const M={win:"¡Tu pareja cumplió! 🎉 +100 pts",fail:"Marcaste que no cumplió · −50 pts",quit:"Tu pareja se rindió 🏳️ −50 pts",time:"Se acabó el tiempo ⏰ −50 pts"};
+    el(ms,"div",null,M[m.res]||"Reto terminado");
+    el(ms,"p","hint","El reto era: “"+txt(m)+"”");
+  }
 }
 
 function render(){
   if(!S.room)return;
-  const o=other(),p=o&&S.players[o];
-  if(!p){setPill("wait","Esperando a tu pareja… comparte el código")}
-  else{const age=Date.now()-(p.seen||0);
-    if(age<25000)setPill("on",(p.name||"Tu pareja")+" está conectado/a");
-    else setPill("off",(p.name||"Tu pareja")+" desconectado/a"+(age<3.6e6?" · hace "+Math.max(1,Math.round(age/60000))+" min":""));}
-  $("who").textContent="Tú: "+(S.name||"—");
-  $("score").textContent=(S.rd&&S.rd.score)||0;
-  // inbox
-  const inb=$("inbox"),t=o&&S.sent[o];inb.innerHTML="";
-  const lab=document.createElement("label");lab.textContent="Tu reto sorpresa";inb.appendChild(lab);
-  const add=(tag,cls,tx,click)=>{const e=document.createElement(tag);e.className=cls;e.textContent=tx;if(click)e.onclick=click;inb.appendChild(e);return e};
-  if(!t){add("p","hint","Aún no te han enviado nada. Cuando tu pareja te mande un reto, aparecerá aquí.")}
-  else if(!t.opened){add("div","gift","🎁",openGift);add("p","hint","¡"+(t.from||"Tu pareja")+" te envió un reto! Toca la caja para abrirlo.")}
-  else{
-    const text=t.cat==="custom"?t.text:(CH[t.id]?CH[t.id][1]:"");
-    add("span","tag",(CATS[t.cat]?CATS[t.cat][0]+" "+CATS[t.cat][1]:"Reto"));
-    add("p","big","“"+text+"”");
-    if(!t.done){add("button","btn ok","✅ ¡Lo cumplí! (+100 pts)",()=>finish(false));add("button","btn sec","Pasar este reto",()=>finish(true))}
-    else add("div","st",t.skipped?"Pasaste este reto":"Reto cumplido ✅");
-  }
-  // mine status
-  const m=S.sent[S.pid],ms=$("mine");
-  if(m){ms.classList.remove("hide");
-    ms.textContent=m.done?(m.skipped?"Tu pareja pasó el reto. ¡Envía otro!":"¡Tu pareja cumplió el reto! 🎉 Envía otro"):m.opened?"Tu pareja ya abrió el reto y lo está haciendo…":"Reto enviado 🎁 Aún sin abrir";
-  }else ms.classList.add("hide");
-  $("bSend").disabled=!!(m&&!m.done);
+  pill();$("who").textContent="Tú: "+(S.name||"—");
+  renderRank();renderInbox();renderMine();
 }
+// ====== ZONA DE AMISTADES ======
+const FR={prof:{},inv:{}};
+function roomOf(c){return "F_"+[S.me,c].sort().join("_")}
+function roomLabel(code){if(!code.startsWith("F_"))return code;const c=code.slice(2).split("_").find(x=>x!==S.me);const f=S.friends.find(x=>x.code===c);return "Con "+((FR.prof[c]&&FR.prof[c].name)||(f&&f.name)||c)}
+function pbeat(){if(!db||!S.me)return;return db.doc("rooms/"+S.me).set({kind:"user",name:S.name||"",pid:S.pid,seen:Date.now()}).catch(()=>{})}
+async function ensureMe(){
+  if(!S.me){for(let i=0;i<10;i++){const c="U-"+Math.floor(1000+Math.random()*9000);if(!(await db.doc("rooms/"+c).get()).exists){S.me=c;break}}persist()}
+  await pbeat();$("mycode").textContent=S.me||"—";
+  db.collection("rooms/"+S.me+"/inv").onSnapshot(q=>{FR.inv={};q.docs.forEach(d=>FR.inv[d.id]=d.data());renderFriends()});
+}
+async function pollFriends(){
+  for(const f of S.friends){try{const d=await db.doc("rooms/"+f.code).get();if(d.exists)FR.prof[f.code]=d.data()}catch(e){}}
+  renderFriends();
+}
+function renderFriends(){
+  if(!$("reqs"))return;
+  const rq=$("reqs");rq.innerHTML="";
+  Object.entries(FR.inv).filter(([k,v])=>v.kind==="req"&&!S.friends.some(f=>f.code===k)).forEach(([k,v])=>{
+    const r=el(rq,"div","frow");el(r,"span","fn",(v.fromName||k)+" quiere agregarte");
+    el(r,"button","chip sel","Aceptar",()=>{S.friends.push({code:k,name:v.fromName||k});persist();db.doc("rooms/"+S.me+"/inv/"+k).delete().catch(()=>{});pollFriends()});
+    el(r,"button","chip","✕",()=>db.doc("rooms/"+S.me+"/inv/"+k).delete().catch(()=>{}));
+  });
+  const fl=$("flist");fl.innerHTML="";
+  if(!S.friends.length)el(fl,"p","hint","Aún no tienes amistades. Comparte tu código o agrega el de tu pareja.");
+  S.friends.forEach(f=>{
+    const p=FR.prof[f.code],on=p&&Date.now()-(p.seen||0)<25000;
+    const iv=FR.inv[f.code],call=iv&&iv.kind==="call"&&Date.now()-iv.at<900000;
+    const r=el(fl,"div","frow");
+    el(r,"i","fd"+(on?" on":""));
+    const w=el(r,"div","fn");el(w,"b",null,(p&&p.name)||f.name);el(w,"small",null,call?"📞 te está esperando":on?"En línea":"Desconectado/a");
+    el(r,"button","btn sm",call?"Entrar 📞":"Entrar",()=>openFriend(f));
+    el(r,"button","chip","✕",()=>{if(confirm("¿Quitar a "+f.name+" de tus amistades?")){S.friends=S.friends.filter(x=>x.code!==f.code);persist();renderFriends()}});
+  });
+}
+async function openFriend(f){
+  if(!myName())return;
+  const rm=roomOf(f.code);
+  try{
+    if(!(await db.doc("rooms/"+rm).get()).exists)await db.doc("rooms/"+rm).set({created:Date.now(),score:0,used:[]});
+    if(!(await enter(rm,false))){toast("No pude entrar a la sala");return}
+    db.doc("rooms/"+S.me+"/inv/"+f.code).delete().catch(()=>{});
+    db.doc("rooms/"+f.code+"/inv/"+S.me).set({kind:"call",fromName:S.name,at:Date.now()}).catch(()=>{});
+  }catch(e){toast("No se pudo entrar")}
+}
+$("bAdd").onclick=async()=>{
+  if(!myName())return;await pbeat();
+  const c=$("fcode").value.trim().toUpperCase();
+  if(!c){toast("Escribe el código de tu amistad");return}
+  if(c===S.me){toast("Ese es tu propio código");return}
+  if(S.friends.some(f=>f.code===c)){toast("Ya la tienes agregada");return}
+  try{
+    const d=await db.doc("rooms/"+c).get();
+    if(!d.exists||d.data().kind!=="user"){toast("No encontré ese código");return}
+    S.friends.push({code:c,name:d.data().name||c});persist();$("fcode").value="";
+    await db.doc("rooms/"+c+"/inv/"+S.me).set({kind:"req",fromName:S.name,at:Date.now()});
+    toast("Agregada ✔ Le llegó tu solicitud");pollFriends();
+  }catch(e){toast("No se pudo agregar")}
+};
+$("bCopyMe").onclick=async()=>{try{await navigator.clipboard.writeText(S.me);toast("Código copiado")}catch(e){toast("Tu código: "+S.me)}};
 init();
 </script>
 </body>
