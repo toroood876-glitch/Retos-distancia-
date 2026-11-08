@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Retos a Distancia</title>
+<style>
+:root{--bg:#0f0817;--card:#1a1127;--line:#33224a;--tx:#f4eefb;--mut:#a794c0;--pk:#ff2a6d;--pu:#9d00ff;--ok:#10b981;--warn:#f59e0b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#fbf6ff;--card:#fff;--line:#e5d6f5;--tx:#26143a;--mut:#6b5a82}}
+:root[data-theme="dark"]{--bg:#0f0817;--card:#1a1127;--line:#33224a;--tx:#f4eefb;--mut:#a794c0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:440px;margin:0 auto;padding:14px 14px 40px}
+h1{font-size:26px;margin:6px 0 2px;text-align:center;background:linear-gradient(90deg,#ff7aa8,var(--pk),var(--pu));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{text-align:center;color:var(--mut);font-size:13px;margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:12px}
+.pill{display:flex;align-items:center;gap:8px;justify-content:center;padding:8px 14px;border-radius:99px;border:1px solid var(--line);background:var(--card);font-size:13px;font-weight:600;margin:0 auto 12px;width:fit-content;max-width:100%}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--warn);flex:none}
+.on .dot{background:var(--ok);box-shadow:0 0 8px var(--ok)}.off .dot{background:#ef4444}.wait .dot{animation:p 1.2s infinite}
+@keyframes p{50%{opacity:.3}}
+input,textarea{width:100%;background:var(--bg);color:var(--tx);border:1px solid var(--line);border-radius:12px;padding:12px;font:inherit;margin-top:6px}
+input:focus,textarea:focus{outline:2px solid var(--pk)}
+label{font-size:12px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}
+.btn{width:100%;border:0;border-radius:14px;padding:14px;font:700 15px inherit;font-family:inherit;color:#fff;background:linear-gradient(90deg,var(--pk),var(--pu));cursor:pointer;margin-top:10px}
+.btn:active{transform:scale(.98)}.btn:disabled{opacity:.45}
+.btn.sec{background:var(--bg);color:var(--tx);border:1px solid var(--line)}
+.btn.ok{background:var(--ok)}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.steps{margin:0;padding-left:18px;color:var(--mut);font-size:13px}
+.code{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.code b{font:800 20px ui-monospace,Menlo,monospace;letter-spacing:.06em;color:var(--pk)}
+.sm{padding:8px 12px;font-size:12px;width:auto;margin:0;border-radius:10px}
+.cats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.cat{border:1px solid var(--line);background:var(--bg);color:var(--tx);border-radius:14px;padding:10px 4px;font:600 12px inherit;font-family:inherit;cursor:pointer}
+.cat span{display:block;font-size:22px}.cat.sel{border-color:var(--pk);background:rgba(255,42,109,.15)}
+.tag{display:inline-block;font-size:11px;font-weight:800;text-transform:uppercase;padding:3px 10px;border-radius:99px;background:rgba(157,0,255,.18);color:var(--pu);margin-bottom:8px}
+.big{font:italic 600 19px/1.5 Georgia,serif;text-align:center;margin:10px 0}
+.gift{font-size:70px;text-align:center;cursor:pointer;animation:b 1.4s infinite;user-select:none}
+@keyframes b{50%{transform:translateY(-8px) rotate(-4deg)}}
+.hint{text-align:center;color:var(--mut);font-size:13px}
+.st{text-align:center;font-weight:700;padding:10px;border-radius:12px;background:var(--bg);border:1px dashed var(--line)}
+.score{display:flex;justify-content:space-between;color:var(--mut);font-size:12px}
+.hide{display:none!important}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--card);border:1px solid var(--pk);color:var(--tx);padding:10px 16px;border-radius:14px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;max-width:90%;text-align:center;z-index:9}
+#toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Retos a Distancia</h1>
+  <p class="sub">Sorpresas 1v1 para parejas en línea</p>
+  <div id="pill" class="pill wait"><i class="dot"></i><span id="pilltx">Cargando…</span></div>
+
+  <!-- LOBBY -->
+  <div id="lobby" class="hide">
+    <div class="card">
+      <label for="name">Tu nombre</label>
+      <input id="name" maxlength="20" placeholder="Ej: Carlos" autocomplete="off">
+      <button class="btn" id="bCreate">Crear sala nueva</button>
+      <div class="hint" style="margin:12px 0 4px">— o entra con el código de tu pareja —</div>
+      <div class="row"><input id="code" placeholder="LOVE-1234" autocapitalize="characters" autocomplete="off" style="text-transform:uppercase;text-align:center;font-weight:700;margin:0"><button class="btn sec" id="bJoin" style="margin:0">Unirme</button></div>
+    </div>
+    <div class="card"><label>Cómo funciona</label>
+      <ol class="steps"><li>Uno crea la sala y le pasa el código al otro.</li><li>Eliges una categoría y el reto se escoge solo, <b>sin que tú lo veas</b>.</li><li>A tu pareja le llega una caja de regalo: la abre, lo cumple y suman puntos.</li><li>La sala se queda guardada aunque cierres la página.</li></ol>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div id="game" class="hide">
+    <div class="card">
+      <div class="code"><div><label>Código de sala</label><br><b id="rcode">—</b></div><button class="btn sec sm" id="bShare">Compartir</button></div>
+      <div class="score" style="margin-top:8px"><span id="who"></span><span>🏆 <b id="score">0</b> pts</span></div>
+    </div>
+
+    <div class="card" id="inbox"></div>
+
+    <div class="card">
+      <label>Enviar reto sorpresa a tu pareja</label>
+      <div class="cats" id="cats"></div>
+      <div id="customBox" class="hide"><textarea id="custom" rows="2" placeholder="Escribe tu propio reto (este sí lo verás)"></textarea></div>
+      <button class="btn" id="bSend">🎁 Enviar reto</button>
+      <div id="mine" class="st hide" style="margin-top:10px"></div>
+    </div>
+
+    <button class="btn sec" id="bLeave">Salir de la sala</button>
+    <p class="hint">Solo sales si pulsas este botón. Si cierras Safari, la sala te espera.</p>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const CH=[
+// hot
+["hot","Mándale una nota de voz susurrando lo que harías si estuvieras a su lado ahora mismo."],
+["hot","Envía una foto sugerente pero con mucho misterio: solo una pista de lo que llevas puesto."],
+["hot","Cuéntale cuál fue tu recuerdo más intenso juntos y por qué no se te olvida."],
+["hot","Describe en tres frases el beso que le darías al verlo/a de nuevo."],
+["hot","Dile qué parte de su cuerpo extrañas más tocar y cómo la acariciarías."],
+["hot","Graba 10 segundos mirando a cámara con tu mirada más seductora."],
+["hot","Propón un juego de roles para la próxima videollamada y explica tu personaje."],
+["hot","Confiesa una fantasía que nunca le has contado."],
+["hot","Dile qué te pondrías para recibirle si apareciera en tu puerta esta noche."],
+["hot","Escribe un mini relato picante de 3 frases con ustedes dos de protagonistas."],
+["hot","Mándale un audio diciendo qué es lo que más te enciende de su voz."],
+["hot","Pídele que te dé una orden traviesa y cúmplela si es posible."],
+["hot","Cuéntale el pensamiento más atrevido que tuviste hoy sobre él/ella."],
+["hot","Descríbele el masaje perfecto que le darías, paso a paso."],
+["hot","Envía una selfie con luz tenue y la sonrisa más pícara que tengas."],
+["hot","Dile tres cosas que harías en los primeros 10 minutos del reencuentro."],
+["hot","Prepárate para una videollamada nocturna y dile qué ambiente tendrá."],
+["hot","Dile qué canción pondrías de fondo para una noche solo de ustedes."],
+["hot","Confiesa qué detalle suyo te vuelve loco/a sin que lo sepa."],
+["hot","Envía un mensaje que le haga sonrojar en menos de 20 palabras."],
+// romantic
+["romantic","Envía una nota de voz de 30 segundos con tres cosas que amas de tu pareja."],
+["romantic","Cuéntale el momento exacto en que supiste que te habías enamorado."],
+["romantic","Elige una canción que los represente y escúchenla a la vez."],
+["romantic","Foto del cielo donde estás: «bajo el mismo cielo te pienso»."],
+["romantic","Planea en un minuto la cita perfecta para cuando se vean."],
+["romantic","Escribe un poema de 4 versos improvisado para tu pareja."],
+["romantic","Dile en tres idiomas distintos que lo/la quieres."],
+["romantic","Menciona 3 lugares del mundo que sueñas visitar con tu pareja."],
+["romantic","Cuéntale algo pequeño que hizo y que nunca olvidaste."],
+["romantic","Dile qué es lo primero que harás al abrazarlo/a de nuevo."],
+["romantic","Manda una foto de un objeto que te recuerde a tu pareja y explica por qué."],
+["romantic","Escribe una promesa sincera para su próximo viaje juntos."],
+["romantic","Dile qué extrañas más de dormir a su lado."],
+["romantic","Envía un mensaje de buenas noches que sea el más dulce que hayas escrito."],
+["romantic","Dile una cualidad suya que admiras en su día a día."],
+["romantic","Propón una cita virtual de película para este fin de semana."],
+["romantic","Dile qué plato le cocinarías la próxima vez que se vean."],
+["romantic","Cuenta qué hacías cuando pensaste en tu pareja hoy."],
+// funny
+["funny","Envía la foto más rara que puedas hacerte ahora mismo con la cara deformada."],
+["funny","Graba un audio imitando 3 animales y que tu pareja los adivine."],
+["funny","Baila 10 segundos sin música como si fuera una discoteca."],
+["funny","Cuéntale el chiste más malo que sepas."],
+["funny","Habla 20 segundos con un acento exagerado en nota de voz."],
+["funny","Rapea 4 líneas improvisadas sobre cuánto lo/la extrañas."],
+["funny","Peínate de forma ridícula y manda la foto."],
+["funny","Imita la voz de un personaje de caricatura famoso."],
+["funny","Describe a tu pareja usando solo nombres de comida rápida."],
+["funny","Haz una selfie imitando tu emoji favorito."],
+["funny","Di un trabalenguas 3 veces seguidas sin equivocarte, en audio."],
+["funny","Dile qué personaje animado se parece a su personalidad."],
+["funny","Haz 5 sentadillas diciendo «te quiero» en cada una (video)."],
+["funny","Confiesa la comida más rara que te gusta."],
+["funny","Da un discurso dramático como si hubieras ganado un Óscar."],
+["funny","Cuenta un malentendido tonto que han tenido como pareja."],
+["funny","Di qué fruta o verdura serías y defiéndelo."],
+["funny","Cuéntale qué talento inútil tienes y demuéstralo."],
+// creative
+["creative","Haz un dibujo rápido de ustedes dos y envíaselo."],
+["creative","Escribe una carta de 5 líneas para abrir dentro de un año."],
+["creative","Inventen juntos el nombre y la historia de su futura mascota."],
+["creative","Crea una playlist de 5 canciones que cuenten su historia."],
+["creative","Describe tu día ideal juntos en 5 frases."],
+["creative","Haz un meme con una foto de ustedes."],
+["creative","Escribe un titular de periódico sobre su historia de amor."],
+["creative","Tomen la misma foto (misma pose, mismo objeto) cada uno desde su casa."],
+["creative","Inventa un apodo nuevo para tu pareja y explica su origen."],
+["creative","Planea un viaje soñado: destino, 3 actividades y qué comerían."],
+["creative","Dile 3 deseos que pedirías juntos si tuvieran una lámpara mágica."],
+["creative","Escribe el guion de 3 líneas de su primera película juntos."],
+["creative","Muéstrale por foto tu rincón favorito de tu casa y cuéntale por qué."],
+["creative","Elijan una palabra secreta solo de ustedes y úsenla hoy."],
+["creative","Hagan una lista de 5 metas que quieren cumplir juntos este año."],
+["creative","Cuenta una historia de 4 frases: tú empiezas y tu pareja la continúa."]
+];
+const CATS={surprise:["🎁","Sorpresa total"],hot:["🔥","Picante"],romantic:["💖","Romántico"],funny:["😂","Divertido"],creative:["✨","Creativo"],custom:["✍️","Escribir uno"]};
+const REAL=["hot","romantic","funny","creative"];
+const $=i=>document.getElementById(i);
+let db=null,S={room:null,pid:null,name:"",players:{},sent:{},rd:null,cat:"surprise"},unsubs=[],hb=null;
+
+function store(){try{return JSON.parse(localStorage.getItem("retos.v1"))||{}}catch(e){return {}}}
+function persist(){try{localStorage.setItem("retos.v1",JSON.stringify({room:S.room,pid:S.pid,name:S.name}))}catch(e){}}
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),2800)}
+function setPill(cls,tx){$("pill").className="pill "+cls;$("pilltx").textContent=tx}
+function other(){return Object.keys(S.players).find(k=>k!==S.pid)}
+
+// ====== PEGA AQUÍ TU CONFIGURACIÓN DE FIREBASE ======
+const FIREBASE_CONFIG={
+  apiKey:"",
+  authDomain:"",
+  projectId:"",
+  storageBucket:"",
+  messagingSenderId:"",
+  appId:""
+};
+// =====================================================
+async function makeDb(){
+  if(!FIREBASE_CONFIG.apiKey||!FIREBASE_CONFIG.projectId)return null;
+  const A=await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
+  const F=await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+  const fs=F.getFirestore(A.initializeApp(FIREBASE_CONFIG));
+  const wd=s=>({id:s.id,exists:s.exists(),data:()=>s.data()});
+  const wq=q=>({docs:q.docs.map(wd)});
+  return{
+    doc:p=>{const r=F.doc(fs,p);return{get:async()=>wd(await F.getDoc(r)),set:d=>F.setDoc(r,d),update:d=>F.updateDoc(r,d),delete:()=>F.deleteDoc(r),onSnapshot:(n,e)=>F.onSnapshot(r,x=>n(wd(x)),e)}},
+    collection:p=>{const r=F.collection(fs,p);return{get:async()=>wq(await F.getDocs(r)),onSnapshot:(n,e)=>F.onSnapshot(r,x=>n(wq(x)),e)}}
+  };
+}
+async function init(){
+  const st=store();S.pid=st.pid||("p"+Math.random().toString(36).slice(2,10));S.name=st.name||"";
+  $("name").value=S.name;persist();
+  buildCats();
+  try{
+    db=await makeDb();
+  }catch(e){db=null}
+  if(!db){setPill("off","Falta configurar Firebase");$("lobby").classList.remove("hide");
+    toast("Falta pegar tu configuración de Firebase en el código.");return}
+  if(st.room){const ok=await enter(st.room,true);if(ok)return}
+  S.room=null;persist();showLobby();
+}
+function showLobby(){setPill("wait","Sin sala");$("lobby").classList.remove("hide");$("game").classList.add("hide")}
+
+function myName(){const n=$("name").value.trim();if(!n){toast("Escribe tu nombre primero");return null}S.name=n;persist();return n}
+
+$("bCreate").onclick=async()=>{
+  if(!myName())return;
+  try{
+    let c;for(let i=0;i<8;i++){c="LOVE-"+Math.floor(1000+Math.random()*9000);if(!(await db.doc("rooms/"+c).get()).exists)break}
+    await db.doc("rooms/"+c).set({created:Date.now(),score:0,used:[]});
+    await enter(c,false);toast("Sala creada. Comparte el código "+c);
+  }catch(e){toast("No se pudo crear la sala")}
+};
+$("bJoin").onclick=async()=>{
+  if(!myName())return;const c=$("code").value.trim().toUpperCase();
+  if(!c){toast("Escribe el código de sala");return}
+  if(!(await enter(c,false)))toast("No encontré esa sala o ya está llena");
+};
+
+async function enter(code,silent){
+  try{
+    const r=await db.doc("rooms/"+code).get();if(!r.exists)return false;
+    const ps=await db.collection("rooms/"+code+"/players").get();
+    const ids=ps.docs.map(d=>d.id);
+    if(!ids.includes(S.pid)&&ids.length>=2)return false;
+    S.room=code;persist();
+    await beat();
+    unsubs.forEach(u=>u());unsubs=[];
+    unsubs.push(db.doc("rooms/"+code).onSnapshot(s=>{S.rd=s.exists?s.data():null;render()}));
+    unsubs.push(db.collection("rooms/"+code+"/players").onSnapshot(q=>{S.players={};q.docs.forEach(d=>S.players[d.id]=d.data());render()}));
+    unsubs.push(db.collection("rooms/"+code+"/sent").onSnapshot(q=>{S.sent={};q.docs.forEach(d=>S.sent[d.id]=d.data());render()}));
+    clearInterval(hb);hb=setInterval(()=>{beat();render()},8000);
+    $("lobby").classList.add("hide");$("game").classList.remove("hide");$("rcode").textContent=code;
+    render();return true;
+  }catch(e){return false}
+}
+function beat(){if(!db||!S.room)return;return db.doc("rooms/"+S.room+"/players/"+S.pid).set({name:S.name||"Tú",seen:Date.now()}).catch(()=>{})}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)beat()});
+
+$("bLeave").onclick=async()=>{
+  if(!confirm("¿Salir de la sala? Tendrás que volver a entrar con el código."))return;
+  const room=S.room;unsubs.forEach(u=>u());unsubs=[];clearInterval(hb);
+  try{await db.doc("rooms/"+room+"/players/"+S.pid).delete()}catch(e){}
+  S.room=null;S.players={};S.sent={};persist();showLobby();toast("Saliste de la sala");
+};
+$("bShare").onclick=async()=>{
+  const t="Entra a nuestra sala de retos con el código: "+S.room;
+  try{if(navigator.share){await navigator.share({text:t});return}}catch(e){return}
+  try{await navigator.clipboard.writeText(S.room);toast("Código copiado")}catch(e){toast(t)}
+};
+
+function buildCats(){
+  const box=$("cats");box.innerHTML="";
+  Object.entries(CATS).forEach(([k,[ic,lb]])=>{
+    const b=document.createElement("button");b.className="cat"+(k===S.cat?" sel":"");
+    b.innerHTML="<span>"+ic+"</span>"+lb;
+    b.onclick=()=>{S.cat=k;buildCats();$("customBox").classList.toggle("hide",k!=="custom")};
+    box.appendChild(b);
+  });
+}
+
+$("bSend").onclick=async()=>{
+  const mine=S.sent[S.pid];
+  if(mine&&!mine.done){toast("Tu pareja aún no termina el reto anterior");return}
+  if(!other()){toast("Espera a que tu pareja se conecte");return}
+  let data;const used=(S.rd&&S.rd.used)||[];let newUsed=used.slice();
+  if(S.cat==="custom"){
+    const t=$("custom").value.trim();if(!t){toast("Escribe el reto primero");return}
+    data={cat:"custom",text:t,chosen:"custom"};$("custom").value="";
+  }else{
+    const c=S.cat==="surprise"?REAL[Math.floor(Math.random()*REAL.length)]:S.cat;
+    let pool=CH.map((x,i)=>({x,i})).filter(o=>o.x[0]===c&&!used.includes(o.i));
+    if(!pool.length){newUsed=newUsed.filter(i=>CH[i]&&CH[i][0]!==c);pool=CH.map((x,i)=>({x,i})).filter(o=>o.x[0]===c)}
+    const p=pool[Math.floor(Math.random()*pool.length)];
+    data={cat:c,id:p.i,chosen:S.cat};newUsed.push(p.i);
+  }
+  data.opened=false;data.done=false;data.skipped=false;data.at=Date.now();data.from=S.name;
+  try{
+    await db.doc("rooms/"+S.room+"/sent/"+S.pid).set(data);
+    if(data.cat!=="custom")await db.doc("rooms/"+S.room).update({used:newUsed});
+    toast("¡Reto enviado! 🎁 No sabes cuál es");
+  }catch(e){toast("No se pudo enviar, intenta otra vez")}
+};
+
+async function openGift(){try{await db.doc("rooms/"+S.room+"/sent/"+other()).update({opened:true})}catch(e){toast("Error al abrir")}}
+async function finish(skip){
+  try{
+    await db.doc("rooms/"+S.room+"/sent/"+other()).update(skip?{done:true,skipped:true}:{done:true});
+    if(!skip){await db.doc("rooms/"+S.room).update({score:((S.rd&&S.rd.score)||0)+100});toast("¡Reto cumplido! +100 pts 🎉")}
+  }catch(e){toast("Error al guardar")}
+}
+
+function render(){
+  if(!S.room)return;
+  const o=other(),p=o&&S.players[o];
+  if(!p){setPill("wait","Esperando a tu pareja… comparte el código")}
+  else{const age=Date.now()-(p.seen||0);
+    if(age<25000)setPill("on",(p.name||"Tu pareja")+" está conectado/a");
+    else setPill("off",(p.name||"Tu pareja")+" desconectado/a"+(age<3.6e6?" · hace "+Math.max(1,Math.round(age/60000))+" min":""));}
+  $("who").textContent="Tú: "+(S.name||"—");
+  $("score").textContent=(S.rd&&S.rd.score)||0;
+  // inbox
+  const inb=$("inbox"),t=o&&S.sent[o];inb.innerHTML="";
+  const lab=document.createElement("label");lab.textContent="Tu reto sorpresa";inb.appendChild(lab);
+  const add=(tag,cls,tx,click)=>{const e=document.createElement(tag);e.className=cls;e.textContent=tx;if(click)e.onclick=click;inb.appendChild(e);return e};
+  if(!t){add("p","hint","Aún no te han enviado nada. Cuando tu pareja te mande un reto, aparecerá aquí.")}
+  else if(!t.opened){add("div","gift","🎁",openGift);add("p","hint","¡"+(t.from||"Tu pareja")+" te envió un reto! Toca la caja para abrirlo.")}
+  else{
+    const text=t.cat==="custom"?t.text:(CH[t.id]?CH[t.id][1]:"");
+    add("span","tag",(CATS[t.cat]?CATS[t.cat][0]+" "+CATS[t.cat][1]:"Reto"));
+    add("p","big","“"+text+"”");
+    if(!t.done){add("button","btn ok","✅ ¡Lo cumplí! (+100 pts)",()=>finish(false));add("button","btn sec","Pasar este reto",()=>finish(true))}
+    else add("div","st",t.skipped?"Pasaste este reto":"Reto cumplido ✅");
+  }
+  // mine status
+  const m=S.sent[S.pid],ms=$("mine");
+  if(m){ms.classList.remove("hide");
+    ms.textContent=m.done?(m.skipped?"Tu pareja pasó el reto. ¡Envía otro!":"¡Tu pareja cumplió el reto! 🎉 Envía otro"):m.opened?"Tu pareja ya abrió el reto y lo está haciendo…":"Reto enviado 🎁 Aún sin abrir";
+  }else ms.classList.add("hide");
+  $("bSend").disabled=!!(m&&!m.done);
+}
+init();
+</script>
+</body>
+</html>
